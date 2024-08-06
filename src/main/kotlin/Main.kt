@@ -18,7 +18,8 @@ fun main() = application {
         particles.add(
             PeonyFirework(
                 Random.nextDouble() * (configuration.width - 100.0) + 50.0,
-                configuration.height.toDouble()
+                configuration.height.toDouble(),
+                Random.nextDouble() * 60.0 + 240.0
             )
         )
     }

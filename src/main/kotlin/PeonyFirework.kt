@@ -1,6 +1,9 @@
 import org.openrndr.draw.Drawer
+import kotlin.math.abs
 
-class PeonyFirework(private val x: Double, private var y: Double) : Particle() {
+class PeonyFirework(initialX: Double, private val initialY: Double, private val reach: Double) : Particle() {
+    private var x: Double = initialX
+    private var y: Double = initialY
 
     private var emitted = false
 
@@ -8,7 +11,7 @@ class PeonyFirework(private val x: Double, private var y: Double) : Particle() {
         val speed = 200.0
 
         y -= speed * deltaSeconds
-        if (y < 200 && !emitted) {
+        if (abs(y - initialY) >= reach && !emitted) {
             emitted = true
             return listOf(Glitter(x, y))
         }
