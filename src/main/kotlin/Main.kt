@@ -5,8 +5,8 @@ import kotlin.random.Random
 
 fun main() = application {
     configure {
-        width = 640
-        height = 480
+        width = 1280
+        height = 880
         windowResizable = true
     }
 
@@ -19,7 +19,7 @@ fun main() = application {
             PeonyFirework(
                 Random.nextDouble() * (configuration.width - 100.0) + 50.0,
                 configuration.height.toDouble(),
-                Random.nextDouble() * 60.0 + 240.0
+                100.0
             )
         )
     }

@@ -1,19 +1,31 @@
 import org.openrndr.draw.Drawer
-import kotlin.math.abs
+import org.openrndr.math.Vector2
 
-class PeonyFirework(initialX: Double, private val initialY: Double, private val reach: Double) : Particle() {
-    private var x: Double = initialX
-    private var y: Double = initialY
+class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double) : Particle() {
+    private var pos: Vector2 = Vector2(initialX, initialY)
+    private var velocity: Vector2 = Vector2(1.0)
 
     private var emitted = false
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
-        val speed = 200.0
+        val mass = 1.5;
+        val burnRate = 120.0;
 
-        y -= speed * deltaSeconds
-        if (abs(y - initialY) >= reach && !emitted) {
+        val gravity = Vector2(0.0, 1000.0)
+        val thrust =
+            if (fuel > 0.0) Vector2(0.0, -2200.0)
+            else Vector2(0.0)
+        fuel -= burnRate * deltaSeconds
+
+        val force = thrust + gravity
+        val acceleration = force / mass
+        velocity += acceleration * deltaSeconds
+        val deltaPosition = velocity * deltaSeconds
+        pos += deltaPosition
+
+        if (fuel <= 0.0 && deltaPosition.y >= 0.0 && !emitted) {
             emitted = true
-            return listOf(Glitter(x, y))
+            return listOf(Glitter(pos.x, pos.y))
         }
         return emptyList()
     }
@@ -23,6 +35,6 @@ class PeonyFirework(initialX: Double, private val initialY: Double, private val 
     }
 
     override fun draw(drawer: Drawer) {
-        drawer.circle(x, y, 8.0)
+        drawer.circle(pos, 8.0)
     }
 }
