@@ -8,8 +8,8 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
     private var emitted = false
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
-        val mass = 1.5;
-        val burnRate = 120.0;
+        val mass = 1.5
+        val burnRate = 120.0
         val gravity = Vector2(0.0, 670.0)
 
         val thrust =
@@ -26,12 +26,12 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
         if (fuel <= 0.0 && deltaPosition.y >= 0.0 && !emitted) {
             emitted = true
 
-            val parts = ArrayList<Glitter>();
-            val partsCount = 12;
-            val direction = Vector2(0.0, 1.0);
-            val angle = 360.0 / partsCount;
+            val parts = ArrayList<Glitter>()
+            val partsCount = 17
+            val direction = Vector2(0.0, 1.0)
+            val angle = 360.0 / partsCount
             for (i in 0 until partsCount) {
-                parts.add(Glitter(pos, direction.rotate(angle * i) * 60.0))
+                parts.add(Glitter(pos, direction.rotate(angle * i) * 1780.0))
             }
 
             return parts
