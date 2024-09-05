@@ -1,10 +1,13 @@
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.math.times
+import kotlin.random.Random
 
 class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private val gravity = Vector2(0.0, 670.0)
 
+    private var life = 0.45 + Random.nextDouble() * 0.1
     private var pos: Vector2 = initialPos
     private var velocity: Vector2 = initialVelocity
     private var acceleration: Vector2 = gravity
@@ -20,14 +23,21 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
         velocity += (acceleration + newAcceleration) * (deltaSeconds * 0.5)
         acceleration = newAcceleration
 
+        life -= deltaSeconds
         return emptyList()
     }
 
     override fun hasExpired(): Boolean {
-        return pos.y > 1000.0
+        return life <= 0.0
     }
 
     override fun draw(drawer: Drawer) {
+        val cyan = ColorRGBa.CYAN
+        val alpha =
+            if (life > 0.2) 1.0
+            else 5 * life - life * life
+        val fillColor = ColorRGBa(cyan.r, cyan.g, cyan.b, alpha)
+        drawer.fill = fillColor
         drawer.circle(pos, 6.0)
     }
 }
