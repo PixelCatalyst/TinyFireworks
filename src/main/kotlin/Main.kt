@@ -1,6 +1,10 @@
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
+import org.openrndr.draw.Filter
+import org.openrndr.draw.filterShaderFromCode
+import org.openrndr.draw.isolatedWithTarget
+import org.openrndr.draw.renderTarget
 import kotlin.random.Random
 
 fun main() = application {
@@ -8,6 +12,31 @@ fun main() = application {
         width = 1280
         height = 880
         windowResizable = true
+    }
+
+    val postFilterShader = """
+        #version 330
+        // -- part of the filter interface, every filter has these
+        in vec2 v_texCoord0;
+        uniform sampler2D tex0;
+        out vec4 o_color;
+
+        // -- user parameters
+        uniform float time;
+
+        void main() {
+            vec4 color = texture(tex0, v_texCoord0);
+            color.b = 0.0;
+            o_color = color;
+        }
+        """
+
+    class PostFilter : Filter(filterShaderFromCode(postFilterShader, "post-filter-shader")) {
+        var time: Double by parameters
+
+        init {
+            time = 0.0
+        }
     }
 
     val particles = ArrayList<Particle>()
@@ -32,20 +61,37 @@ fun main() = application {
             }
         }
 
+        val postFilter = PostFilter()
+
+        val offscreenTarget = renderTarget(width, height) {
+            colorBuffer()
+            depthBuffer()
+        }
+
         fireFirework()
 
         extend {
-            drawer.clear(ColorRGBa.BLACK)
+            // TODO(WIP) shader experiment
 
-            val emittedParticles = ArrayList<Particle>()
-            for (p in particles) {
-                emittedParticles.addAll(p.update(seconds - lastSeconds))
-                p.draw(drawer)
+            drawer.isolatedWithTarget(offscreenTarget) {
+                clear(ColorRGBa.BLACK)
+
+                val emittedParticles = ArrayList<Particle>()
+                for (p in particles) {
+                    emittedParticles.addAll(p.update(seconds - lastSeconds))
+                    p.draw(drawer)
+                }
+                particles.removeAll { it.hasExpired() }
+                particles.addAll(emittedParticles)
+
+                lastSeconds = seconds
             }
-            particles.removeAll { it.hasExpired() }
-            particles.addAll(emittedParticles)
 
-            lastSeconds = seconds
+            postFilter.time = seconds
+            val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
+            postFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
+
+            drawer.image(offscreenColorBuffer)
         }
     }
 }
