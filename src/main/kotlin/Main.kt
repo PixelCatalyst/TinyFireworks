@@ -5,6 +5,7 @@ import org.openrndr.draw.Filter
 import org.openrndr.draw.filterShaderFromCode
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.renderTarget
+import kotlin.math.min
 import kotlin.random.Random
 
 fun main() = application {
@@ -41,7 +42,7 @@ fun main() = application {
 
     val particles = ArrayList<Particle>()
 
-    var lastSeconds = 0.0
+    var lastSeconds: Double? = null
 
     fun fireFirework() {
         particles.add(
@@ -73,18 +74,35 @@ fun main() = application {
         extend {
             // TODO(WIP) shader experiment
 
-            drawer.isolatedWithTarget(offscreenTarget) {
-                clear(ColorRGBa.BLACK)
+            val timeStep = 1.0 / 60.0
+            val maxStepsPerFrame = 20
+            lastSeconds = lastSeconds ?: seconds
+
+            var frameSeconds = seconds - lastSeconds!!
+            if ((frameSeconds / timeStep) > maxStepsPerFrame) {
+                frameSeconds = 0.0
+            }
+            println(frameSeconds)
+            lastSeconds = seconds
+
+            while (frameSeconds > 0.0) {
+                val deltaSeconds = min(frameSeconds, timeStep)
 
                 val emittedParticles = ArrayList<Particle>()
                 for (p in particles) {
-                    emittedParticles.addAll(p.update(seconds - lastSeconds))
-                    p.draw(drawer)
+                    emittedParticles.addAll(p.update(deltaSeconds))
                 }
                 particles.removeAll { it.hasExpired() }
                 particles.addAll(emittedParticles)
 
-                lastSeconds = seconds
+                frameSeconds -= deltaSeconds
+            }
+
+            drawer.isolatedWithTarget(offscreenTarget) {
+                clear(ColorRGBa.BLACK)
+                for (p in particles) {
+                    p.draw(drawer)
+                }
             }
 
             postFilter.time = seconds
