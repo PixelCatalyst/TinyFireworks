@@ -1,10 +1,8 @@
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
-import org.openrndr.draw.Filter
-import org.openrndr.draw.filterShaderFromCode
-import org.openrndr.draw.isolatedWithTarget
-import org.openrndr.draw.renderTarget
+import org.openrndr.draw.*
+import java.io.File
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -15,30 +13,9 @@ fun main() = application {
         windowResizable = true
     }
 
-    val postFilterShader = """
-        #version 330
-        // -- part of the filter interface, every filter has these
-        in vec2 v_texCoord0;
-        uniform sampler2D tex0;
-        out vec4 o_color;
+    val postFilterShaderFile = File("shaders/filter.glsl")
 
-        // -- user parameters
-        uniform float time;
-
-        void main() {
-            vec4 color = texture(tex0, v_texCoord0);
-            color.b = 0.0;
-            o_color = color;
-        }
-        """
-
-    class PostFilter : Filter(filterShaderFromCode(postFilterShader, "post-filter-shader")) {
-        var time: Double by parameters
-
-        init {
-            time = 0.0
-        }
-    }
+    class PostFilter : Filter(filterShaderFromCode(postFilterShaderFile.readText(), "post-filter"))
 
     val particles = ArrayList<Particle>()
 
@@ -82,7 +59,6 @@ fun main() = application {
             if ((frameSeconds / timeStep) > maxStepsPerFrame) {
                 frameSeconds = 0.0
             }
-            println(frameSeconds)
             lastSeconds = seconds
 
             while (frameSeconds > 0.0) {
@@ -105,7 +81,6 @@ fun main() = application {
                 }
             }
 
-            postFilter.time = seconds
             val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
             postFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
 
