@@ -13,9 +13,15 @@ fun main() = application {
         windowResizable = true
     }
 
-    val postFilterShaderFile = File("shaders/filter.glsl")
+    val pixelizeShaderFile = File("shaders/pixelize.glsl")
 
-    class PostFilter : Filter(filterShaderFromCode(postFilterShaderFile.readText(), "post-filter"))
+    class PixelizationFilter : Filter(filterShaderFromCode(pixelizeShaderFile.readText(), "pixelize")) {
+        var pixelSize: Int by parameters
+
+        init {
+            pixelSize = 1
+        }
+    }
 
     val particles = ArrayList<Particle>()
 
@@ -39,7 +45,8 @@ fun main() = application {
             }
         }
 
-        val postFilter = PostFilter()
+        val pixelizationFilter = PixelizationFilter()
+        pixelizationFilter.pixelSize = 5
 
         val offscreenTarget = renderTarget(width, height) {
             colorBuffer()
@@ -49,8 +56,6 @@ fun main() = application {
         fireFirework()
 
         extend {
-            // TODO(WIP) shader experiment
-
             val timeStep = 1.0 / 60.0
             val maxStepsPerFrame = 20
             lastSeconds = lastSeconds ?: seconds
@@ -82,7 +87,7 @@ fun main() = application {
             }
 
             val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
-            postFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
+            pixelizationFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
 
             drawer.image(offscreenColorBuffer)
         }
