@@ -48,6 +48,8 @@ fun main() = application {
         val pixelizationFilter = PixelizationFilter()
         pixelizationFilter.pixelSize = 5
 
+        val background = loadImage("tmp_bg.png")
+
         val offscreenTarget = renderTarget(width, height) {
             colorBuffer()
             depthBuffer()
@@ -80,7 +82,7 @@ fun main() = application {
             }
 
             drawer.isolatedWithTarget(offscreenTarget) {
-                clear(ColorRGBa.BLACK)
+                clear(ColorRGBa.TRANSPARENT)
                 for (p in particles) {
                     p.draw(drawer)
                 }
@@ -89,6 +91,7 @@ fun main() = application {
             val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
             pixelizationFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
 
+            drawer.image(background)
             drawer.image(offscreenColorBuffer)
         }
     }
