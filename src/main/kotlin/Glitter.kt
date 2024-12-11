@@ -38,6 +38,7 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
             else 5 * life - life * life
         val fillColor = ColorRGBa(cyan.r, cyan.g, cyan.b, alpha)
         drawer.fill = fillColor
+        drawer.stroke = ColorRGBa.TRANSPARENT
         drawer.circle(pos, 6.0)
     }
 }

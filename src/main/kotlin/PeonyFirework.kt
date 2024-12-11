@@ -1,3 +1,4 @@
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
@@ -44,6 +45,8 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
     }
 
     override fun draw(drawer: Drawer) {
+        drawer.fill = ColorRGBa.WHITE
+        drawer.stroke = ColorRGBa.TRANSPARENT
         drawer.circle(pos, 8.0)
     }
 }
