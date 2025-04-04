@@ -1,6 +1,5 @@
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
-import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.*
 import java.io.File
 import kotlin.math.min
@@ -14,6 +13,13 @@ fun main() = application {
     }
 
     val pixelizeShaderFile = File("shaders/pixelize.glsl")
+    val fadeShaderFile = File("shaders/fade.glsl")
+    val alphaChannelFragmentTransform = """
+                    vec2 uv = c_boundsPosition.xy;
+                    uv.y = 1.0 - uv.y;
+                    vec4 color = texture(p_img, uv);
+                    x_fill = color;
+                """.trimIndent()
 
     class PixelizationFilter : Filter(filterShaderFromCode(pixelizeShaderFile.readText(), "pixelize")) {
         var pixelSize: Int by parameters
@@ -22,6 +28,8 @@ fun main() = application {
             pixelSize = 1
         }
     }
+
+    class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade"))
 
     val particles = ArrayList<Particle>()
 
@@ -45,6 +53,7 @@ fun main() = application {
             }
         }
 
+        val fadeFilter = FadeFilter()
         val pixelizationFilter = PixelizationFilter()
         pixelizationFilter.pixelSize = 5
 
@@ -52,7 +61,6 @@ fun main() = application {
 
         val offscreenTarget = renderTarget(width, height) {
             colorBuffer()
-            depthBuffer()
         }
 
         fireFirework()
@@ -81,18 +89,22 @@ fun main() = application {
                 frameSeconds -= deltaSeconds
             }
 
+            val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
+            fadeFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
             drawer.isolatedWithTarget(offscreenTarget) {
-                clear(ColorRGBa.TRANSPARENT)
                 for (p in particles) {
                     p.draw(drawer)
                 }
             }
-
-            val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
             pixelizationFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
 
             drawer.image(background)
-            drawer.image(offscreenColorBuffer)
+            drawer.stroke = null
+            drawer.shadeStyle = shadeStyle {
+                fragmentTransform = alphaChannelFragmentTransform
+                parameter("img", offscreenColorBuffer)
+            }
+            drawer.rectangle(drawer.bounds)
         }
     }
 }
