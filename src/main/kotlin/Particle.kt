@@ -5,5 +5,7 @@ abstract class Particle {
 
     abstract fun hasExpired(): Boolean
 
+    abstract fun blur(): String
+
     abstract fun draw(drawer: Drawer)
 }

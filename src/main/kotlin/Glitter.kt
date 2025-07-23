@@ -31,6 +31,10 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
         return life <= 0.0
     }
 
+    override fun blur(): String {
+        return "small"
+    }
+
     override fun draw(drawer: Drawer) {
         val cyan = ColorRGBa.CYAN
         val alpha =

@@ -5,6 +5,8 @@ import java.io.File
 import kotlin.math.min
 import kotlin.random.Random
 
+data class MotionBlurTarget(val factor: Double, val target: RenderTarget)
+
 fun main() = application {
     configure {
         width = 1280
@@ -12,14 +14,15 @@ fun main() = application {
         windowResizable = true
     }
 
-    val pixelizeShaderFile = File("shaders/pixelize.glsl")
-    val fadeShaderFile = File("shaders/fade.glsl")
     val alphaChannelFragmentTransform = """
                     vec2 uv = c_boundsPosition.xy;
                     uv.y = 1.0 - uv.y;
                     vec4 color = texture(p_img, uv);
                     x_fill = color;
                 """.trimIndent()
+
+    val pixelizeShaderFile = File("shaders/pixelize.glsl")
+    val fadeShaderFile = File("shaders/fade.glsl")
 
     class PixelizationFilter : Filter(filterShaderFromCode(pixelizeShaderFile.readText(), "pixelize")) {
         var pixelSize: Int by parameters
@@ -29,7 +32,13 @@ fun main() = application {
         }
     }
 
-    class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade"))
+    class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade"))  {
+        var factor: Double by parameters
+
+        init {
+            factor = 0.0
+        }
+    }
 
     val particles = ArrayList<Particle>()
 
@@ -45,6 +54,17 @@ fun main() = application {
         )
     }
 
+    fun drawBufferWithAlpha(drawer: Drawer, colorBuffer: ColorBuffer) {
+        drawer.isolated {
+            drawer.stroke = null
+            drawer.shadeStyle = shadeStyle {
+                fragmentTransform = alphaChannelFragmentTransform
+                parameter("img", colorBuffer)
+            }
+            drawer.rectangle(drawer.bounds)
+        }
+    }
+
     program {
 
         keyboard.keyDown.listen {
@@ -57,11 +77,13 @@ fun main() = application {
         val pixelizationFilter = PixelizationFilter()
         pixelizationFilter.pixelSize = 5
 
-        val background = loadImage("tmp_bg.png")
+        val motionBlurCategories = mapOf(
+            "none" to MotionBlurTarget(0.0, renderTarget(width, height) { colorBuffer() }),
+            "small" to MotionBlurTarget(0.8, renderTarget(width, height) { colorBuffer() }),
+            "large" to MotionBlurTarget(0.95, renderTarget(width, height) { colorBuffer() }),
+        )
 
-        val offscreenTarget = renderTarget(width, height) {
-            colorBuffer()
-        }
+        val background = loadImage("tmp_bg.png")
 
         fireFirework()
 
@@ -89,22 +111,25 @@ fun main() = application {
                 frameSeconds -= deltaSeconds
             }
 
-            val offscreenColorBuffer = offscreenTarget.colorBuffer(0)
-            fadeFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
-            drawer.isolatedWithTarget(offscreenTarget) {
-                for (p in particles) {
-                    p.draw(drawer)
-                }
-            }
-            pixelizationFilter.apply(offscreenColorBuffer, offscreenColorBuffer)
-
             drawer.image(background)
-            drawer.stroke = null
-            drawer.shadeStyle = shadeStyle {
-                fragmentTransform = alphaChannelFragmentTransform
-                parameter("img", offscreenColorBuffer)
+
+            for (mbc in motionBlurCategories) {
+                val target = mbc.value.target
+                val targetBuffer = target.colorBuffer(0)
+
+                fadeFilter.factor = mbc.value.factor
+                fadeFilter.apply(targetBuffer, targetBuffer)
+                drawer.isolatedWithTarget(target) {
+                    for (p in particles) {
+                        if (p.blur() == mbc.key) {
+                            p.draw(drawer)
+                        }
+                    }
+                }
+                pixelizationFilter.apply(targetBuffer, targetBuffer)
+
+                drawBufferWithAlpha(drawer, targetBuffer)
             }
-            drawer.rectangle(drawer.bounds)
         }
     }
 }

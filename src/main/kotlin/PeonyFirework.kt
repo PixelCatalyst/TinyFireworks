@@ -44,6 +44,10 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
         return emitted
     }
 
+    override fun blur(): String {
+        return "large"
+    }
+
     override fun draw(drawer: Drawer) {
         drawer.fill = ColorRGBa.WHITE
         drawer.stroke = ColorRGBa.TRANSPARENT
