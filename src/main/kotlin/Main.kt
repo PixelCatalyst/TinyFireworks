@@ -32,7 +32,7 @@ fun main() = application {
         }
     }
 
-    class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade"))  {
+    class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade")) {
         var factor: Double by parameters
 
         init {
@@ -49,7 +49,8 @@ fun main() = application {
             PeonyFirework(
                 Random.nextDouble() * (configuration.width - 100.0) + 50.0,
                 configuration.height.toDouble(),
-                100.0
+                100.0,
+                if (Random.nextDouble() > 0.5) StrobeStarsEmitter() else GlitterStarsEmitter()
             )
         )
     }

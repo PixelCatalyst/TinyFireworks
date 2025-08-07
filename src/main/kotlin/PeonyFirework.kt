@@ -2,7 +2,8 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
-class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double) : Particle() {
+class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double, private var emitter: StarsEmitter) :
+    Particle() {
     private var pos: Vector2 = Vector2(initialX, initialY)
     private var velocity: Vector2 = Vector2(0.0)
     private var acceleration: Vector2 = Vector2(0.0)
@@ -26,16 +27,7 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
 
         if (fuel <= 0.0 && deltaPosition.y >= 0.0 && !emitted) {
             emitted = true
-
-            val parts = ArrayList<Glitter>()
-            val partsCount = 17
-            val direction = Vector2(0.0, 1.0)
-            val angle = 360.0 / partsCount
-            for (i in 0 until partsCount) {
-                parts.add(Glitter(pos, direction.rotate(angle * i) * 1780.0))
-            }
-
-            return parts
+            return emitter.emit(pos)
         }
         return emptyList()
     }
