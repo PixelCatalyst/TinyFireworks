@@ -9,6 +9,7 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private var pos: Vector2 = initialPos
     private var velocity: Vector2 = initialVelocity
     private var acceleration: Vector2 = Vector2.ZERO
+    private var emitted = false
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
         val drag = 0.031
@@ -20,7 +21,13 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
         acceleration = dragDeceleration
 
         life -= deltaSeconds
-        return emptyList()
+
+        if (life <= 0.0 && !emitted) {
+            emitted = true
+            return FlashStarsEmitter().emit(pos) + Flash(pos, 0.0)
+        } else {
+            return emptyList()
+        }
     }
 
     override fun hasExpired(): Boolean {
@@ -28,7 +35,7 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     }
 
     override fun blur(): String {
-        return "none"
+        return "small"
     }
 
     override fun draw(drawer: Drawer) {
