@@ -1,6 +1,7 @@
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
 import org.openrndr.draw.*
+import org.openrndr.math.Vector2
 import java.io.File
 import kotlin.math.min
 import kotlin.random.Random
@@ -67,6 +68,13 @@ fun main() = application {
     }
 
     program {
+        val mainTarget = renderTarget(1280, 880) { colorBuffer() }
+
+        val motionBlurCategories = mapOf(
+            "none" to MotionBlurTarget(0.0, renderTarget(mainTarget.width, mainTarget.height) { colorBuffer() }),
+            "small" to MotionBlurTarget(0.8, renderTarget(mainTarget.width, mainTarget.height) { colorBuffer() }),
+            "large" to MotionBlurTarget(0.95, renderTarget(mainTarget.width, mainTarget.height) { colorBuffer() }),
+        )
 
         keyboard.keyDown.listen {
             if (it.key == KEY_SPACEBAR) {
@@ -77,12 +85,6 @@ fun main() = application {
         val fadeFilter = FadeFilter()
         val pixelizationFilter = PixelizationFilter()
         pixelizationFilter.pixelSize = 5
-
-        val motionBlurCategories = mapOf(
-            "none" to MotionBlurTarget(0.0, renderTarget(width, height) { colorBuffer() }),
-            "small" to MotionBlurTarget(0.8, renderTarget(width, height) { colorBuffer() }),
-            "large" to MotionBlurTarget(0.95, renderTarget(width, height) { colorBuffer() }),
-        )
 
         val background = loadImage("tmp_bg.png")
 
@@ -112,8 +114,6 @@ fun main() = application {
                 frameSeconds -= deltaSeconds
             }
 
-            drawer.image(background)
-
             for (mbc in motionBlurCategories) {
                 val target = mbc.value.target
                 val targetBuffer = target.colorBuffer(0)
@@ -121,6 +121,8 @@ fun main() = application {
                 fadeFilter.factor = mbc.value.factor
                 fadeFilter.apply(targetBuffer, targetBuffer)
                 drawer.isolatedWithTarget(target) {
+                    ortho(target)
+
                     for (p in particles) {
                         if (p.blur() == mbc.key) {
                             p.draw(drawer)
@@ -128,9 +130,18 @@ fun main() = application {
                     }
                 }
                 pixelizationFilter.apply(targetBuffer, targetBuffer)
-
-                drawBufferWithAlpha(drawer, targetBuffer)
             }
+
+            drawer.isolatedWithTarget(mainTarget) {
+                ortho(mainTarget)
+
+                drawer.image(background)
+                for (mbc in motionBlurCategories) {
+                    drawBufferWithAlpha(drawer, mbc.value.target.colorBuffer(0))
+                }
+            }
+
+            drawer.image(mainTarget.colorBuffer(0), Vector2.ZERO, width.toDouble(), height.toDouble())
         }
     }
 }
