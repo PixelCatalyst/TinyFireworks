@@ -25,16 +25,7 @@ fun main() = application {
                     x_fill = color;
                 """.trimIndent()
 
-    val pixelizeShaderFile = File("shaders/pixelize.glsl")
     val fadeShaderFile = File("shaders/fade.glsl")
-
-    class PixelizationFilter : Filter(filterShaderFromCode(pixelizeShaderFile.readText(), "pixelize")) {
-        var pixelSize: Int by parameters
-
-        init {
-            pixelSize = 1
-        }
-    }
 
     class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade")) {
         var factor: Double by parameters
@@ -80,17 +71,15 @@ fun main() = application {
             "large" to MotionBlurTarget(0.95, renderTarget(mainTarget.width, mainTarget.height) { colorBuffer() }),
         )
 
+        val fadeFilter = FadeFilter()
+
+        val background = loadImage("tmp_bg.png")
+
         keyboard.keyDown.listen {
             if (it.key == KEY_SPACEBAR) {
                 fireFirework()
             }
         }
-
-        val fadeFilter = FadeFilter()
-        val pixelizationFilter = PixelizationFilter()
-        pixelizationFilter.pixelSize = 5
-
-        val background = loadImage("tmp_bg.png")
 
         fireFirework()
 
