@@ -3,7 +3,7 @@ import org.openrndr.application
 import org.openrndr.draw.*
 import org.openrndr.math.Vector2
 import java.io.File
-import kotlin.math.min
+import kotlin.math.*
 import kotlin.random.Random
 
 data class MotionBlurTarget(val factor: Double, val target: RenderTarget)
@@ -59,6 +59,22 @@ fun main() = application {
             }
             drawer.rectangle(drawer.bounds)
         }
+    }
+
+    fun presentWithPixelPerfectScaling(drawer: Drawer, source: ColorBuffer, sourceSize: Vector2, targetSize: Vector2) {
+        val scaleX = (targetSize.x / sourceSize.x).toInt()
+        val scaleY = (targetSize.y / sourceSize.y).toInt()
+        val scale = max(min(scaleY, scaleX), 1)
+
+        val scaledWidth = sourceSize.x * scale
+        val scaledHeight = sourceSize.y * scale
+
+        val origin = Vector2(
+            (targetSize.x - scaledWidth) / 2.0,
+            (targetSize.y - scaledHeight) / 2.0,
+        )
+
+        drawer.image(source, origin, scaledWidth, scaledHeight)
     }
 
     program {
@@ -133,7 +149,12 @@ fun main() = application {
                 }
             }
 
-            drawer.image(mainTarget.colorBuffer(0), Vector2.ZERO, width.toDouble(), height.toDouble())
+            presentWithPixelPerfectScaling(
+                drawer,
+                mainTarget.colorBuffer(0),
+                Vector2(canvasWidth.toDouble(), canvasHeight.toDouble()),
+                Vector2(width.toDouble(), height.toDouble())
+            )
         }
     }
 }
