@@ -5,7 +5,7 @@ import org.openrndr.math.times
 import kotlin.random.Random
 
 class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
-    private val gravity = Vector2(0.0, 670.0)
+    private val gravity = Vector2(0.0, 167.0)
 
     private var life = 0.45 + Random.nextDouble() * 0.1
     private var pos: Vector2 = initialPos
@@ -13,9 +13,9 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private var acceleration: Vector2 = gravity
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
-        val drag = 0.033
+        val drag = 0.12
         val dragDeceleration = -0.5 * drag * velocity.squaredLength * velocity.normalized
-        val gravityDragCoef = 0.5
+        val gravityDragCoef = 0.9
 
         val deltaPosition = velocity * deltaSeconds + acceleration * (deltaSeconds * deltaSeconds * 0.5)
         pos += deltaPosition
@@ -43,6 +43,6 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
         val fillColor = ColorRGBa(cyan.r, cyan.g, cyan.b, alpha)
         drawer.fill = fillColor
         drawer.stroke = ColorRGBa.TRANSPARENT
-        drawer.circle(pos, 6.0)
+        drawer.circle(pos, 1.5)
     }
 }

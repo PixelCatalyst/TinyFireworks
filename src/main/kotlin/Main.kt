@@ -11,9 +11,12 @@ data class MotionBlurTarget(val factor: Double, val target: RenderTarget)
 fun main() = application {
     configure {
         width = 1280
-        height = 880
+        height = 720
         windowResizable = true
     }
+
+    val canvasWidth = 320
+    val canvasHeight = 180
 
     val alphaChannelFragmentTransform = """
                     vec2 uv = c_boundsPosition.xy;
@@ -48,9 +51,9 @@ fun main() = application {
     fun fireFirework() {
         particles.add(
             PeonyFirework(
-                Random.nextDouble() * (configuration.width - 100.0) + 50.0,
-                configuration.height.toDouble(),
-                100.0,
+                Random.nextDouble() * (canvasWidth - 100.0) + 50.0,
+                canvasHeight.toDouble(),
+                85.0,
                 if (Random.nextDouble() > 0.5) StrobeStarsEmitter() else GlitterStarsEmitter()
             )
         )
@@ -68,7 +71,8 @@ fun main() = application {
     }
 
     program {
-        val mainTarget = renderTarget(1280, 880) { colorBuffer() }
+        val mainTarget = renderTarget(canvasWidth, canvasHeight) { colorBuffer() }
+        mainTarget.colorBuffer(0).filter(MinifyingFilter.NEAREST, MagnifyingFilter.NEAREST)
 
         val motionBlurCategories = mapOf(
             "none" to MotionBlurTarget(0.0, renderTarget(mainTarget.width, mainTarget.height) { colorBuffer() }),
@@ -129,13 +133,12 @@ fun main() = application {
                         }
                     }
                 }
-                pixelizationFilter.apply(targetBuffer, targetBuffer)
             }
 
             drawer.isolatedWithTarget(mainTarget) {
                 ortho(mainTarget)
 
-                drawer.image(background)
+                drawer.image(background, Vector2.ZERO, canvasWidth.toDouble(), canvasHeight.toDouble())
                 for (mbc in motionBlurCategories) {
                     drawBufferWithAlpha(drawer, mbc.value.target.colorBuffer(0))
                 }

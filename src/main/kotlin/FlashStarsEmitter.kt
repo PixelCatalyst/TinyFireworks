@@ -8,7 +8,7 @@ class FlashStarsEmitter : StarsEmitter {
         val direction = Vector2(0.0, 1.0).rotate(Random.nextDouble(0.0, 360.0))
         val angle = 360.0 / starsCount
         for (i in 0 until starsCount) {
-            val translation = direction.rotate(angle * i) * Random.nextDouble(10.0, 48.0)
+            val translation = direction.rotate(angle * i) * Random.nextDouble(2.5, 12.0)
             stars.add(Flash(initialPosition + translation))
         }
 

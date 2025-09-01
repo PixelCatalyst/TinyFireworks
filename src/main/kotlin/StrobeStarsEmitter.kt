@@ -8,7 +8,7 @@ class StrobeStarsEmitter : StarsEmitter {
         val starsCount = 77
 
         for (i in 0 until starsCount) {
-            val radius = 50.0 * sqrt(Random.nextDouble())
+            val radius = 12.0 * sqrt(Random.nextDouble())
             val theta = Random.nextDouble() * 2 * PI
 
             val pos = Vector2(
@@ -17,7 +17,7 @@ class StrobeStarsEmitter : StarsEmitter {
             )
             val velocity = pos - initialPosition
 
-            stars.add(Strobe(pos, velocity * 25.0))
+            stars.add(Strobe(pos, velocity * 36.0))
         }
 
         return stars

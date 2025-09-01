@@ -7,7 +7,7 @@ class GlitterStarsEmitter : StarsEmitter {
         val direction = Vector2(0.0, 1.0)
         val angle = 360.0 / starsCount
         for (i in 0 until starsCount) {
-            stars.add(Glitter(initialPosition, direction.rotate(angle * i) * 1780.0))
+            stars.add(Glitter(initialPosition, direction.rotate(angle * i) * 380.0))
         }
 
         return stars

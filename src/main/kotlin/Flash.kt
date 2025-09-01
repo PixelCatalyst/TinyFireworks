@@ -4,7 +4,7 @@ import org.openrndr.math.Vector2
 import kotlin.random.Random
 
 class Flash(initialPos: Vector2, delay: Double = Random.nextDouble(0.0, 1.5)) : Particle() {
-    private val size = Random.nextDouble(7.0, 16.0)
+    private val size = Random.nextDouble(1.6, 3.6)
     private val flashDuration = Random.nextDouble(0.08, 0.234)
 
     private var life = delay + flashDuration
@@ -31,14 +31,14 @@ class Flash(initialPos: Vector2, delay: Double = Random.nextDouble(0.0, 1.5)) : 
 
             val outerBandColor = ColorRGBa(baseColor.r, baseColor.g, baseColor.b, 0.01)
             drawer.fill = outerBandColor
-            drawer.circle(pos, size * 1.7)
+            drawer.circle(pos, size * 1.4)
 
             val innerBandColor = ColorRGBa(baseColor.r, baseColor.g, baseColor.b, 0.1)
             drawer.fill = innerBandColor
             drawer.circle(pos, size)
 
             drawer.fill = baseColor
-            drawer.circle(pos, size * 0.5)
+            drawer.circle(pos, size * 0.4)
         }
     }
 }

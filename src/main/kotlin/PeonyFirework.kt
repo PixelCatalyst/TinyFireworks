@@ -12,10 +12,10 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
     override fun update(deltaSeconds: Double): Collection<Particle> {
         val mass = 1.5
         val burnRate = 120.0
-        val gravity = Vector2(0.0, 670.0)
+        val gravity = Vector2(0.0, 167.0)
 
         val thrust =
-            if (fuel > 0.0) Vector2(0.0, -2210.0)
+            if (fuel > 0.0) Vector2(0.0, -560.0)
             else Vector2(0.0)
         fuel -= burnRate * deltaSeconds
 
@@ -43,6 +43,6 @@ class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double
     override fun draw(drawer: Drawer) {
         drawer.fill = ColorRGBa.WHITE
         drawer.stroke = ColorRGBa.TRANSPARENT
-        drawer.circle(pos, 8.0)
+        drawer.circle(pos, 2.0)
     }
 }

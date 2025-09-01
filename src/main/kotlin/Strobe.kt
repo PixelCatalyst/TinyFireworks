@@ -12,7 +12,7 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private var emitted = false
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
-        val drag = 0.031
+        val drag = 0.16
         val dragDeceleration = -0.5 * drag * velocity.squaredLength * velocity.normalized
 
         val deltaPosition = velocity * deltaSeconds + acceleration * (deltaSeconds * deltaSeconds * 0.5)
@@ -41,6 +41,6 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     override fun draw(drawer: Drawer) {
         drawer.fill = ColorRGBa.WHITE
         drawer.stroke = ColorRGBa.TRANSPARENT
-        drawer.circle(pos, 4.0)
+        drawer.circle(pos, 0.8)
     }
 }
