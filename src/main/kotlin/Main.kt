@@ -45,7 +45,11 @@ fun main() = application {
                 Random.nextDouble() * (canvasWidth - 100.0) + 50.0,
                 canvasHeight.toDouble(),
                 85.0,
-                if (Random.nextDouble() > 0.5) StrobeStarsEmitter() else GlitterStarsEmitter()
+                if (Random.nextDouble() > 0.33)
+                    (if (Random.nextDouble() > 0.5)
+                        StrobeStarsEmitter()
+                    else FishStarsEmitter())
+                else GlitterStarsEmitter()
             )
         )
     }
