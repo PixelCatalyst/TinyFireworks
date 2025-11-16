@@ -36,11 +36,11 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     }
 
     override fun draw(drawer: Drawer) {
-        val cyan = ColorRGBa.CYAN
+        val white = ColorRGBa.WHITE
         val alpha =
             if (life > 0.2) 1.0
             else 5 * life - life * life
-        val fillColor = ColorRGBa(cyan.r, cyan.g, cyan.b, alpha)
+        val fillColor = ColorRGBa(white.r, white.g, white.b, alpha)
         drawer.fill = fillColor
         drawer.stroke = ColorRGBa.TRANSPARENT
         drawer.circle(pos, 1.5)
