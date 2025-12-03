@@ -43,8 +43,7 @@ fun main() = application {
         particles.add(
             PeonyFirework(
                 Random.nextDouble() * (canvasWidth - 100.0) + 50.0,
-                canvasHeight.toDouble(),
-                85.0,
+                (canvasHeight + 8).toDouble(),
                 if (Random.nextDouble() > 0.33)
                     (if (Random.nextDouble() > 0.5)
                         StrobeStarsEmitter()

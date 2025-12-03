@@ -1,39 +1,37 @@
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
+import kotlin.random.Random
 
-class PeonyFirework(initialX: Double, initialY: Double, private var fuel: Double, private var emitter: StarsEmitter) :
+class PeonyFirework(initialX: Double, initialY: Double, private var emitter: StarsEmitter) :
     Particle() {
     private var pos: Vector2 = Vector2(initialX, initialY)
     private var velocity: Vector2 = Vector2(0.0)
     private var acceleration: Vector2 = Vector2(0.0)
-    private var emitted = false
+
+    private val accelerationForce: Vector2 = Vector2(0.0, -460.0 + Random.nextDouble(-5.0, 5.0))
+    private val decelerationForce: Vector2 = Vector2(0.0, 215.0 + Random.nextDouble(-5.0, 5.0))
+
+    private val ascendingLife = 0.4 + Random.nextDouble(-0.06, 0.05)
+    private val descendingLife = 0.8 + Random.nextDouble(-0.05, 0.015)
+    private var life = ascendingLife + descendingLife
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
-        val mass = 1.5
-        val burnRate = 120.0
-        val gravity = Vector2(0.0, 167.0)
-
-        val thrust =
-            if (fuel > 0.0) Vector2(0.0, -560.0)
-            else Vector2(0.0)
-        fuel -= burnRate * deltaSeconds
-
         val deltaPosition = velocity * deltaSeconds + acceleration * (deltaSeconds * deltaSeconds * 0.5)
         pos += deltaPosition
-        val newAcceleration = (thrust / mass) + gravity
+        val newAcceleration = if ((life - descendingLife) <= 0.0) decelerationForce else accelerationForce
         velocity += (acceleration + newAcceleration) * (deltaSeconds * 0.5)
         acceleration = newAcceleration
 
-        if (fuel <= 0.0 && deltaPosition.y >= 0.0 && !emitted) {
-            emitted = true
+        life -= deltaSeconds
+        if (life <= 0.0) {
             return emitter.emit(pos)
         }
         return emptyList()
     }
 
     override fun hasExpired(): Boolean {
-        return emitted
+        return life <= 0.0
     }
 
     override fun blur(): String {
