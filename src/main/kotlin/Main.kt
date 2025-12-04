@@ -1,7 +1,12 @@
+import emitters.FishStarsEmitter
+import emitters.GlitterStarsEmitter
+import emitters.StrobeStarsEmitter
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
 import org.openrndr.draw.*
 import org.openrndr.math.Vector2
+import particles.Particle
+import particles.PeonyFirework
 import java.io.File
 import kotlin.math.*
 import kotlin.random.Random

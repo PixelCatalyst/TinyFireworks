@@ -1,3 +1,7 @@
+package emitters
+
+import particles.Flash
+import particles.Particle
 import org.openrndr.math.Vector2
 import kotlin.random.Random
 

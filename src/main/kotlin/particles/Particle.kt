@@ -1,3 +1,5 @@
+package particles
+
 import org.openrndr.draw.Drawer
 
 abstract class Particle {

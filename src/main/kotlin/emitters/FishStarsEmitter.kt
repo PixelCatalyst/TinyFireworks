@@ -1,3 +1,7 @@
+package emitters
+
+import particles.Fish
+import particles.Particle
 import org.openrndr.math.Vector2
 import kotlin.math.PI
 import kotlin.math.cos

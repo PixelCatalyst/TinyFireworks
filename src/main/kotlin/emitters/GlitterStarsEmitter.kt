@@ -1,3 +1,7 @@
+package emitters
+
+import particles.Glitter
+import particles.Particle
 import org.openrndr.math.Vector2
 
 class GlitterStarsEmitter : StarsEmitter {

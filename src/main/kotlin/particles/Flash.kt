@@ -1,3 +1,5 @@
+package particles
+
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
