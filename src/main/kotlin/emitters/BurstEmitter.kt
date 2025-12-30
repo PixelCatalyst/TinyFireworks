@@ -5,7 +5,7 @@ import particles.Particle
 import org.openrndr.math.Vector2
 import kotlin.random.Random
 
-class FlashStarsEmitter : StarsEmitter {
+class BurstEmitter : Emitter {
     override fun emit(initialPosition: Vector2): Collection<Particle> {
         val stars = ArrayList<Flash>()
         val starsCount = Random.nextInt(1, 4)

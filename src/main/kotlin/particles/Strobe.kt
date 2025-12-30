@@ -1,6 +1,6 @@
 package particles
 
-import emitters.FlashStarsEmitter
+import emitters.BurstEmitter
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
@@ -12,7 +12,6 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private var pos: Vector2 = initialPos
     private var velocity: Vector2 = initialVelocity
     private var acceleration: Vector2 = Vector2.ZERO
-    private var emitted = false
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
         val drag = 0.16
@@ -25,12 +24,10 @@ class Strobe(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
 
         life -= deltaSeconds
 
-        if (life <= 0.0 && !emitted) {
-            emitted = true
-            return FlashStarsEmitter().emit(pos) + Flash(pos, 0.0)
-        } else {
-            return emptyList()
+        if (life <= 0.0) {
+            return BurstEmitter().emit(pos) + Flash(pos, 0.0)
         }
+        return emptyList()
     }
 
     override fun hasExpired(): Boolean {

@@ -1,16 +1,28 @@
 package particles
 
-import emitters.StarsEmitter
+import emitters.ConeEmitter
+import emitters.DiskEmitter
+import emitters.Emitter
+import emitters.RingEmitter
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import kotlin.random.Random
 
-class PeonyFirework(initialX: Double, initialY: Double, private var emitter: StarsEmitter) :
+private fun nextEmitter(): Emitter {
+    return when (Random.nextInt(3)) {
+        0 -> RingEmitter()
+        1 -> DiskEmitter()
+        else -> ConeEmitter()
+    }
+}
+
+class Firework(initialX: Double, initialY: Double) :
     Particle() {
     private var pos: Vector2 = Vector2(initialX, initialY)
     private var velocity: Vector2 = Vector2(0.0)
     private var acceleration: Vector2 = Vector2(0.0)
+    private val emitter = nextEmitter()
 
     private val accelerationForce: Vector2 = Vector2(0.0, -460.0 + Random.nextDouble(-5.0, 5.0))
     private val decelerationForce: Vector2 = Vector2(0.0, 215.0 + Random.nextDouble(-5.0, 5.0))

@@ -1,12 +1,9 @@
-import emitters.FishStarsEmitter
-import emitters.GlitterStarsEmitter
-import emitters.StrobeStarsEmitter
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
 import org.openrndr.draw.*
 import org.openrndr.math.Vector2
 import particles.Particle
-import particles.PeonyFirework
+import particles.Firework
 import java.io.File
 import kotlin.math.*
 import kotlin.random.Random
@@ -46,14 +43,9 @@ fun main() = application {
 
     fun fireFirework() {
         particles.add(
-            PeonyFirework(
+            Firework(
                 Random.nextDouble() * (canvasWidth - 100.0) + 50.0,
-                (canvasHeight + 8).toDouble(),
-                if (Random.nextDouble() > 0.33)
-                    (if (Random.nextDouble() > 0.5)
-                        StrobeStarsEmitter()
-                    else FishStarsEmitter())
-                else GlitterStarsEmitter()
+                (canvasHeight + 8).toDouble()
             )
         )
     }
