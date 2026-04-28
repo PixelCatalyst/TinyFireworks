@@ -1,5 +1,7 @@
 package emitters
 
+import colors.ColorMixer
+import colors.ColorPalette
 import particles.Glitter
 import particles.Particle
 import particles.Fish
@@ -15,20 +17,22 @@ class RingEmitter : Emitter {
         val starsCount = Random.nextInt(11, 23)
         val direction = Vector2(0.0, 1.0)
         val angle = 360.0 / starsCount
+        val palette = ColorPalette()
+
         for (i in 0 until starsCount) {
-            stars.add(createParticle(initialPosition, direction.rotate(angle * i)))
+            stars.add(createParticle(initialPosition, direction.rotate(angle * i), palette))
         }
 
         return stars
     }
 
-    private fun createParticle(initialPosition: Vector2, direction: Vector2): Particle {
+    private fun createParticle(initialPosition: Vector2, direction: Vector2, palette: ColorPalette): Particle {
         val velocityFactor = Random.nextDouble(360.0, 390.0)
 
         return when (variant) {
-            0 -> Glitter(initialPosition, direction * velocityFactor)
-            1 -> Fish(initialPosition, direction * velocityFactor / 70.0)
-            else -> Strobe(initialPosition, direction * velocityFactor)
+            0 -> Glitter(initialPosition, direction * velocityFactor, ColorMixer(palette, 0.25))
+            1 -> Fish(initialPosition, direction * velocityFactor / 70.0, ColorMixer(palette, 0.8))
+            else -> Strobe(initialPosition, direction * velocityFactor, ColorMixer(palette, 0.2))
         }
     }
 }

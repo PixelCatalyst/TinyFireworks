@@ -17,8 +17,7 @@ private fun nextEmitter(): Emitter {
     }
 }
 
-class Firework(initialX: Double, initialY: Double) :
-    Particle() {
+class Firework(initialX: Double, initialY: Double) : Particle() {
     private var pos: Vector2 = Vector2(initialX, initialY)
     private var velocity: Vector2 = Vector2(0.0)
     private var acceleration: Vector2 = Vector2(0.0)

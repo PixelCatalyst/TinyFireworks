@@ -1,5 +1,7 @@
 package emitters
 
+import colors.ColorMixer
+import colors.ColorPalette
 import particles.Fish
 import particles.Particle
 import org.openrndr.math.Vector2
@@ -18,6 +20,7 @@ class ConeEmitter : Emitter {
         val stars = ArrayList<Particle>()
         val starsCount = Random.nextInt(24, 37)
         val coneRadius = Random.nextDouble(0.45)
+        val palette = ColorPalette()
 
         for (i in 0 until starsCount) {
             val radius = 12.0 * sqrt(Random.nextDouble()) + 1.0
@@ -29,19 +32,19 @@ class ConeEmitter : Emitter {
             )
             val velocity = pos - initialPosition
 
-            stars.add(createParticle(pos, velocity))
+            stars.add(createParticle(pos, velocity, palette))
         }
 
         return stars
     }
 
-    private fun createParticle(initialPosition: Vector2, initialVelocity: Vector2): Particle {
+    private fun createParticle(initialPosition: Vector2, initialVelocity: Vector2, palette: ColorPalette): Particle {
         val velocityFactor = Random.nextDouble(360.0, 390.0)
 
         return when (variant) {
-            0 -> Glitter(initialPosition, initialVelocity.normalized * velocityFactor)
-            1 -> Fish(initialPosition, initialVelocity)
-            else -> Strobe(initialPosition, initialVelocity.normalized * velocityFactor)
+            0 -> Glitter(initialPosition, initialVelocity.normalized * velocityFactor, ColorMixer(palette, 0.25))
+            1 -> Fish(initialPosition, initialVelocity, ColorMixer(palette, 0.8))
+            else -> Strobe(initialPosition, initialVelocity.normalized * velocityFactor, ColorMixer(palette, 0.2))
         }
     }
 }

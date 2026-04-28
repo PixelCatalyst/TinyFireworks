@@ -1,12 +1,13 @@
 package particles
 
+import colors.ColorMixer
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.math.times
 import kotlin.random.Random
 
-class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
+class Glitter(initialPos: Vector2, initialVelocity: Vector2, private val color: ColorMixer) : Particle() {
     private val gravity = Vector2(0.0, 167.0)
 
     private var life = 0.45 + Random.nextDouble() * 0.1
@@ -15,6 +16,8 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private var acceleration: Vector2 = gravity
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
+        color.update(deltaSeconds)
+
         val drag = 0.12
         val dragDeceleration = -0.5 * drag * velocity.squaredLength * velocity.normalized
         val gravityDragCoef = 0.9
@@ -38,13 +41,16 @@ class Glitter(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     }
 
     override fun draw(drawer: Drawer) {
-        val white = ColorRGBa.WHITE
+        val radius = 1.5
+        val mainColor = color.get()
         val alpha =
             if (life > 0.2) 1.0
             else 5 * life - life * life
-        val fillColor = ColorRGBa(white.r, white.g, white.b, alpha)
+        val fillColor = ColorRGBa(mainColor.r, mainColor.g, mainColor.b, alpha)
         drawer.fill = fillColor
         drawer.stroke = ColorRGBa.TRANSPARENT
-        drawer.circle(pos, 1.5)
+        drawer.circle(pos, radius)
+        drawer.fill = fillColor.times(2.0)
+        drawer.circle(pos, radius / 3.0)
     }
 }

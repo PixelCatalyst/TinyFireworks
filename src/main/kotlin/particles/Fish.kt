@@ -1,11 +1,12 @@
 package particles
 
+import colors.ColorMixer
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import kotlin.random.Random
 
-class Fish(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
+class Fish(initialPos: Vector2, initialVelocity: Vector2, private val color: ColorMixer) : Particle() {
     private var life = Random.nextDouble(0.8, 1.9)
     private var pos: Vector2 = initialPos
     private var velocity: Vector2 = initialVelocity * Random.nextDouble(2.3, 3.5)
@@ -15,6 +16,8 @@ class Fish(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     private var turnAngle = Random.nextDouble(20.0, 33.0)
 
     override fun update(deltaSeconds: Double): Collection<Particle> {
+        color.update(deltaSeconds)
+
         val deltaPosition = velocity * deltaSeconds
         pos += deltaPosition
 
@@ -47,8 +50,11 @@ class Fish(initialPos: Vector2, initialVelocity: Vector2) : Particle() {
     }
 
     override fun draw(drawer: Drawer) {
-        drawer.fill = ColorRGBa.WHITE
+        val radius = 1.0
+        drawer.fill = color.get()
         drawer.stroke = ColorRGBa.TRANSPARENT
-        drawer.circle(pos, 1.0)
+        drawer.circle(pos, radius)
+        drawer.fill = color.get().times(2.0)
+        drawer.circle(pos, radius / 3.0)
     }
 }
