@@ -1,7 +1,13 @@
+import background.BackgroundProp
+import background.BuildingSeparator
+import background.CityBuilding
+import background.SkyStar
+import org.openrndr.KEY_ENTER
 import org.openrndr.KEY_SPACEBAR
 import org.openrndr.application
 import org.openrndr.draw.*
 import org.openrndr.math.Vector2
+import org.openrndr.math.Vector3
 import particles.Particle
 import particles.Firework
 import java.io.File
@@ -28,6 +34,7 @@ fun main() = application {
                 """.trimIndent()
 
     val fadeShaderFile = File("shaders/fade.glsl")
+    val gradientShaderFile = File("shaders/gradient.glsl")
 
     class FadeFilter : Filter(filterShaderFromCode(fadeShaderFile.readText(), "fade")) {
         var factor: Double by parameters
@@ -37,9 +44,85 @@ fun main() = application {
         }
     }
 
+    class GradientFilter : Filter(filterShaderFromCode(gradientShaderFile.readText(), "gradient")) {
+        var colorTop: Vector3 by parameters
+        var colorBottom: Vector3 by parameters
+
+        init {
+            colorTop = Vector3(0.03, 0.0, 0.17)
+            colorBottom = Vector3(0.22, 0.2, 0.35)
+        }
+    }
+
     val particles = ArrayList<Particle>()
 
     var lastSeconds: Double? = null
+
+    fun generateBackgroundStars(): Collection<BackgroundProp> {
+        val count = 32
+        val segmentWidth = canvasWidth / count.toDouble()
+        val segmentOffset = segmentWidth / 5.0
+        val starProps = ArrayList<BackgroundProp>()
+
+        for (i in 0 until count) {
+            val countPerSegment = Random.nextInt(3)
+            (0 until countPerSegment).forEach {
+                starProps.add(
+                    SkyStar(
+                        segmentWidth * i + Random.nextDouble(segmentOffset, segmentWidth - segmentOffset),
+                        Random.nextDouble(4.0, canvasHeight / 2.3)
+                    )
+                )
+            }
+        }
+
+        return starProps
+    }
+
+    fun generateBackgroundCity(): Collection<BackgroundProp> {
+        val buildingProps = ArrayList<BackgroundProp>()
+
+        var i = 0
+        var bottomLeftCorner = Vector2(0.0, canvasHeight.toDouble())
+        var prevBuildingHeight = 0.0
+        while (i < canvasWidth) {
+            val building = CityBuilding(bottomLeftCorner)
+
+            if (abs(prevBuildingHeight - building.height) < 9.0) {
+                val separator = BuildingSeparator(bottomLeftCorner)
+                building.shiftRight(separator.width)
+
+                buildingProps.add(separator)
+                i += separator.width.toInt()
+                bottomLeftCorner += Vector2(separator.width, 0.0)
+            }
+
+            buildingProps.add(building)
+            i += building.width.toInt()
+            bottomLeftCorner += Vector2(building.width, 0.0)
+
+            prevBuildingHeight = building.height
+        }
+
+        return buildingProps
+    }
+
+    fun generateBackgroundImage(drawer: Drawer, target: RenderTarget, filter: Filter) {
+        val background = target.colorBuffer(0)
+        filter.apply(background, background)
+
+        val backgroundProps = ArrayList<BackgroundProp>()
+        backgroundProps.addAll(generateBackgroundStars())
+        backgroundProps.addAll(generateBackgroundCity())
+
+        drawer.isolatedWithTarget(target) {
+            ortho(target)
+
+            for (bp in backgroundProps) {
+                bp.draw(drawer)
+            }
+        }
+    }
 
     fun fireFirework() {
         particles.add(
@@ -88,12 +171,20 @@ fun main() = application {
         )
 
         val fadeFilter = FadeFilter()
+        val gradientFilter = GradientFilter()
 
-        val background = loadImage("tmp_bg.png")
+        val backgroundTarget = renderTarget(canvasWidth, canvasHeight) {
+            colorBuffer()
+            depthBuffer()
+        }
+        generateBackgroundImage(drawer, backgroundTarget, gradientFilter)
 
         keyboard.keyDown.listen {
             if (it.key == KEY_SPACEBAR) {
                 fireFirework()
+            }
+            if (it.key == KEY_ENTER) {
+                generateBackgroundImage(drawer, backgroundTarget, gradientFilter)
             }
         }
 
@@ -143,6 +234,7 @@ fun main() = application {
             drawer.isolatedWithTarget(mainTarget) {
                 ortho(mainTarget)
 
+                val background = backgroundTarget.colorBuffer(0)
                 drawer.image(background, Vector2.ZERO, canvasWidth.toDouble(), canvasHeight.toDouble())
                 for (mbc in motionBlurCategories) {
                     drawBufferWithAlpha(drawer, mbc.value.target.colorBuffer(0))

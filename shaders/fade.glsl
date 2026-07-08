@@ -3,7 +3,7 @@
 in vec2 v_texCoord0;
 uniform sampler2D tex0;
 
-uniform float factor;
+uniform float factor = 1.0;
 
 out vec4 o_color;
 
