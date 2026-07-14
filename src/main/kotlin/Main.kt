@@ -3,7 +3,9 @@ import background.BuildingSeparator
 import background.CityBuilding
 import background.SkyStar
 import org.openrndr.KEY_ENTER
+import org.openrndr.KEY_ESCAPE
 import org.openrndr.KEY_SPACEBAR
+import org.openrndr.Window
 import org.openrndr.application
 import org.openrndr.draw.*
 import org.openrndr.math.Vector2
@@ -22,6 +24,10 @@ fun main() = application {
         height = 720
         windowResizable = true
     }
+
+    var isFullscreen = false
+    var lastWindowSize = Vector2(1280.0, 720.0)
+    var lastWindowPosition = Vector2(0.0, 0.0)
 
     val canvasWidth = 320
     val canvasHeight = 180
@@ -133,6 +139,27 @@ fun main() = application {
         )
     }
 
+    fun toggleFullscreen(window: Window) {
+        if (isFullscreen) {
+            isFullscreen = false
+
+            window.size = lastWindowSize
+            window.position = lastWindowPosition
+        } else {
+            isFullscreen = true
+
+            lastWindowSize = window.size
+            lastWindowPosition = window.position
+
+            window.size = Vector2(
+                displays[0].width!!.toDouble() / displays[0].contentScale!!,
+                displays[0].height!!.toDouble() / displays[0].contentScale!!
+            )
+            window.position = Vector2.ZERO
+        }
+    }
+
+
     fun drawBufferWithAlpha(drawer: Drawer, colorBuffer: ColorBuffer) {
         drawer.isolated {
             drawer.stroke = null
@@ -185,6 +212,12 @@ fun main() = application {
             }
             if (it.key == KEY_SPACEBAR) {
                 fireFirework()
+            }
+            if (it.name == "f") {
+                toggleFullscreen(window)
+            }
+            if (it.key == KEY_ESCAPE) {
+                application.exit()
             }
         }
 
