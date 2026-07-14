@@ -180,15 +180,13 @@ fun main() = application {
         generateBackgroundImage(drawer, backgroundTarget, gradientFilter)
 
         keyboard.keyDown.listen {
-            if (it.key == KEY_SPACEBAR) {
-                fireFirework()
-            }
             if (it.key == KEY_ENTER) {
                 generateBackgroundImage(drawer, backgroundTarget, gradientFilter)
             }
+            if (it.key == KEY_SPACEBAR) {
+                fireFirework()
+            }
         }
-
-        fireFirework()
 
         extend {
             val timeStep = 1.0 / 60.0

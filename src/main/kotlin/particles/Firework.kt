@@ -55,6 +55,6 @@ class Firework(initialX: Double, initialY: Double) : Particle() {
     override fun draw(drawer: Drawer) {
         drawer.fill = ColorRGBa.WHITE
         drawer.stroke = ColorRGBa.TRANSPARENT
-        drawer.circle(pos, 2.0)
+        drawer.circle(pos, 1.5)
     }
 }
